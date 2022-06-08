@@ -1,4 +1,3 @@
-from typing import List
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from .models import AuthUser, Token
@@ -32,3 +31,10 @@ class AuthManager(BaseManager):
             )
             self.session.add(new_token)
             await self.session.commit()
+            
+    async def authenticate_user(self, token: str) -> bool:
+        command = select(Token).where(Token.user_token==token).limit(1)
+        user_token = await self.session.execute(command)
+        if user_token is not None:
+            return True
+        return False
