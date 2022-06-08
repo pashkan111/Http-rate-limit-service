@@ -1,5 +1,7 @@
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import func
+
 from .models import AuthUser, Token
 from .services import get_password_hash, create_token
 
@@ -13,14 +15,15 @@ class BaseManager:
 
 
 class AuthManager(BaseManager):
-    async def create_user(self, login: str, password: str):
+    async def create_user(self, data: AuthUser):
         """
         Создаем нового пользователя и токен
         """
-        async with self.session.begin():
-            hashed_password = get_password_hash(password)
+        self.session.begin()
+        try:
+            hashed_password = get_password_hash(data.password)
             new_user = AuthUser(
-                login=login, password=hashed_password
+                login=data.login, password=hashed_password
             )
             self.session.add(new_user)
             await self.session.commit()
@@ -31,10 +34,12 @@ class AuthManager(BaseManager):
             )
             self.session.add(new_token)
             await self.session.commit()
+        except:
+            await self.session.rollback()
             
     async def authenticate_user(self, token: str) -> bool:
-        command = select(Token).where(Token.user_token==token).limit(1)
-        user_token = await self.session.execute(command)
-        if user_token is not None:
+        command = select(Token).where(Token.user_token==token).with_only_columns([func.count()])
+        token_count = await self.session.execute(command)
+        if token_count.scalar() == 1:
             return True
         return False

@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-# from sqlmodel import SQLModel
 from src.auth.models import SQLModel
 from config import (host, port, user, database, password)
 
