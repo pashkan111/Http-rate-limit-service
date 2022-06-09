@@ -103,8 +103,7 @@ class UserManager:
         if credentials is None:
             await self.process_request(request)
             return
-        manager = AuthManager(session)
-        is_authenticated = await manager.authenticate_user(credentials.credentials)
+        is_authenticated = await AuthManager.authenticate_user(session, credentials.credentials)
         if not is_authenticated:
             await self.process_request(request)
             return

@@ -15,31 +15,33 @@ class BaseManager:
 
 
 class AuthManager(BaseManager):
-    async def create_user(self, data: AuthUser):
+    @classmethod
+    async def create_user(cls, session: AsyncSession, data: AuthUser):
         """
         Создаем нового пользователя и токен
         """
-        self.session.begin()
+        session.begin()
         try:
             hashed_password = get_password_hash(data.password)
             new_user = AuthUser(
                 login=data.login, password=hashed_password
             )
-            self.session.add(new_user)
-            await self.session.commit()
+            session.add(new_user)
+            await session.commit()
             
             user_token = create_token()
             new_token = Token(
                 user_token=user_token, user_id=new_user.id
             )
-            self.session.add(new_token)
-            await self.session.commit()
+            session.add(new_token)
+            await session.commit()
         except:
-            await self.session.rollback()
+            await session.rollback()
             
-    async def authenticate_user(self, token: str) -> bool:
+    @classmethod
+    async def authenticate_user(cls, session: AsyncSession, token: str) -> bool:
         command = select(Token).where(Token.user_token==token).with_only_columns([func.count()])
-        token_count = await self.session.execute(command)
+        token_count = await session.execute(command)
         if token_count.scalar() == 1:
             return True
         return False
