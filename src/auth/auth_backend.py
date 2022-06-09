@@ -35,8 +35,8 @@ class RequestCounter:
     В случае, если пользователь авторизован, то запросы не подсчитываются
     """
     format = "%d-%m-%y %H:%M:%S"
-    max_count_queries = 10
-    timeout_limit = 30
+    max_count_queries = 60
+    timeout_limit = 60
     
     async def count_requests(self, host: str) -> Optional[None]:
         data = await redis.hgetall(host)
@@ -119,4 +119,4 @@ class UserManager:
         return request.client.host
 
 
-check = UserManager()
+check_user = UserManager()
