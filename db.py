@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from src.auth.models import SQLModel
 from config import (host, port, user, database, password)
+import aioredis
 
 
 DATABASE_URL = f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{database}"
@@ -21,3 +22,6 @@ async def get_session() -> AsyncSession:
     )
     async with async_session() as session:
         yield session
+
+
+redis = aioredis.from_url('redis://0.0.0.0:6000', decode_responses=True)
