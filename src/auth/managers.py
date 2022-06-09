@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import func
@@ -16,7 +17,7 @@ class BaseManager:
 
 class AuthManager(BaseManager):
     @classmethod
-    async def create_user(cls, session: AsyncSession, data: AuthUser):
+    async def create_user(cls, session: AsyncSession, data: AuthUser) -> Optional[str]:
         """
         Создаем нового пользователя и токен
         """
@@ -35,9 +36,11 @@ class AuthManager(BaseManager):
             )
             session.add(new_token)
             await session.commit()
-        except:
+            return user_token
+        except Exception:
             await session.rollback()
             
+    
     @classmethod
     async def authenticate_user(cls, session: AsyncSession, token: str) -> bool:
         command = select(Token).where(Token.user_token==token).with_only_columns([func.count()])
