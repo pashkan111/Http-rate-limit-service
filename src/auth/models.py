@@ -1,4 +1,3 @@
-from enum import unique
 from sqlmodel import Field, SQLModel, Relationship, UniqueConstraint
 from typing import Optional, List
 
