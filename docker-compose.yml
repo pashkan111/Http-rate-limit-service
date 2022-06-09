@@ -6,3 +6,25 @@ services:
     ports:
       - "6000:6379"
     restart: on-failure
+
+  db:
+    image: postgres:13
+    restart: always
+    env_file:
+      - ./.env
+    volumes:
+      - ./volumes/postgresql/pg-data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+
+  web:
+    # build: .
+    image: qqq
+    command: "python main.py"
+    volumes:
+      - .:/src
+    ports:
+      - "8000:8089"
+    depends_on:
+      - db
+      - redis
