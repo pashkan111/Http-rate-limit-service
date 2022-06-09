@@ -18,8 +18,7 @@ services:
       - "5435:5432"
 
   web:
-    # build: .
-    image: qqq
+    build: .
     command: "python main.py"
     volumes:
       - .:/src
