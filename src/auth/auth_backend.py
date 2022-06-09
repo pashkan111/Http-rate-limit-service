@@ -8,7 +8,7 @@ from fastapi.security.utils import get_authorization_scheme_param
 from typing import Optional
 from fastapi.exceptions import HTTPException
 import datetime
-from .schemas import CountSchema
+from .schemas import RedisMessageSchema
 from .exceptions import RateLimitException
 
 
@@ -48,27 +48,30 @@ class RequestCounter:
                 mapping=message.dict()
                 )
             return
-        count = int(data.get('count'))
-        dt = datetime.datetime.strptime(str(data.get('dt')), self.format)
+        data_validated = RedisMessageSchema(**data)
+        print(data_validated.count)
+        count = data_validated.count
+        dt = datetime.datetime.strptime(data_validated.dt, self.format)
         now = datetime.datetime.now()
+        difference = now - dt
         
-        if count >= self.max_count_queries and (now - dt) <= datetime.timedelta(0):
+        if count >= self.max_count_queries and difference <= datetime.timedelta(0):
             raise RateLimitException
         
-        elif (now - dt) > datetime.timedelta(0):
-            data['count'] = 1
-            data['dt'] = self._get_bound_datetime()
+        elif difference > datetime.timedelta(0):
+            data_validated.count = 1
+            data_validated.dt = self._get_bound_datetime()
             await redis.hset(
                 host,
-                mapping=data
+                mapping=data_validated.dict()
             )
             return
 
-        new_count = count + 1
-        data['count'] = new_count
+        incremented_count = count + 1
+        data_validated.count = incremented_count
         await redis.hset(
             host,
-            mapping=data
+            mapping=data_validated.dict()
         )
     
     def _get_bound_datetime(self) -> str:
@@ -80,8 +83,8 @@ class RequestCounter:
         self, 
         dt: str,
         count: int = 1
-        ) -> CountSchema:
-        schema = CountSchema(dt=dt, count=count)
+        ) -> RedisMessageSchema:
+        schema = RedisMessageSchema(dt=dt, count=count)
         return schema
 
 
@@ -105,7 +108,7 @@ class UserManager:
         if not is_authenticated:
             await self.process_request(request)
             return
-    
+
     async def process_request(self, request: Request):
         host = self.get_host(request)
         try:
@@ -115,3 +118,6 @@ class UserManager:
     
     def get_host(self, request: Request) -> str:
         return request.client.host
+
+
+check = UserManager()

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
 
-class CountSchema(BaseModel):
+class RedisMessageSchema(BaseModel):
     dt: str
     count: int
