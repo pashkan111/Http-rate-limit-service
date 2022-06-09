@@ -5,6 +5,7 @@ from sqlalchemy import func
 
 from .models import AuthUser, Token
 from .services import get_password_hash, create_token
+from .schemas import AuthUserSchema
 
 
 class BaseManager:
@@ -17,7 +18,7 @@ class BaseManager:
 
 class AuthManager(BaseManager):
     @classmethod
-    async def create_user(cls, session: AsyncSession, data: AuthUser) -> Optional[str]:
+    async def create_user(cls, session: AsyncSession, data: AuthUserSchema) -> Optional[str]:
         """
         Создаем нового пользователя и токен
         """

@@ -1,12 +1,10 @@
-from sqlmodel import Field, SQLModel, Relationship
+from enum import unique
+from sqlmodel import Field, SQLModel, Relationship, UniqueConstraint
 from typing import Optional, List
 
 
-class BaseSqlModel(SQLModel):
-    id:  Optional[int] = Field(default=None, primary_key=True)
-
-
 class AuthUser(SQLModel, table=True):
+    __table_args__ = (UniqueConstraint("login"),)
     id:  Optional[int] = Field(default=None, primary_key=True)
     login: str
     password:  str

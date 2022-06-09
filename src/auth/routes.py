@@ -4,14 +4,15 @@ from datetime import datetime
 
 from db import get_session
 from .managers import AuthManager
-from .models import AuthUser
 from .auth_backend import check_user
+from .schemas import AuthUserSchema
+
 
 router = APIRouter()
 
 
 @router.post('/register')
-async def register(data: AuthUser, session: AsyncSession = Depends(get_session)):
+async def register(data: AuthUserSchema, session: AsyncSession = Depends(get_session)):
     token = await AuthManager.create_user(session, data)
     return {'token': token}
 
