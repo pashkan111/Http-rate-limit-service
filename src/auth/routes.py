@@ -19,6 +19,7 @@ async def register(data: AuthUserSchema, session: AsyncSession = Depends(get_ses
 
 @router.get('/show_date', dependencies=[Depends(check_user)])
 async def test_route():
+    """Тестовый роут"""
     datetime_now = datetime.now()
     return {
         'year': datetime_now.year,

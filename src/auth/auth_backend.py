@@ -39,6 +39,10 @@ class RequestCounter:
     timeout_limit = 60
     
     async def count_requests(self, host: str) -> Optional[None]:
+        """
+        Основной метод для проверки и подсчета количества 
+        запросов у пользователя
+        """
         data = await redis.hgetall(host)
         if not data:
             bound_datetime = self._get_bound_datetime()
